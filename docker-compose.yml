@@ -1,0 +1,8 @@
+services:
+  php:
+    container_name: presenter_tests
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ./:/var/www/app

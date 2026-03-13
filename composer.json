@@ -1,0 +1,46 @@
+{
+    "name": "cds-uwb/nette-presenter-tests",
+    "description": "Library based on PHPUnit framework to test Nette presenters via simple API",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "phpstan": "phpstan analyse --memory-limit=256M",
+        "phpunit": "phpunit -c phpunit.xml",
+        "phpunit-ci": "phpunit -c phpunit.xml --coverage-text --coverage-clover=coverage.xml",
+        "format": "php-cs-fixer fix",
+        "format-ci": "php-cs-fixer fix --dry-run"
+    },
+    "autoload": {
+        "psr-4": {
+            "Cds\\NettePresenterTests\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "php": "^8.4",
+    "require": {
+        "latte/latte": "^3.1",
+        "nette/application": "^3.2",
+        "nette/bootstrap": "^3.2",
+        "nette/di": "^3.2",
+        "nette/forms": "^3.2",
+        "nette/security": "^3.2",
+        "nette/utils": "^4.1"
+    },
+    "require-dev": {
+        "cds-uwb/php-code-style": "^1.0",
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "nette/caching": "^3.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-nette": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/phpunit": "^13.0"
+    }
+}
