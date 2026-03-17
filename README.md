@@ -13,12 +13,14 @@ The main functionality of Nette presenters is in their actions invoked by reques
 to simply invoke presenter actions like as called from browser. Another functionality is handling
 form submission that can be also tested.
 
-```php
-final class PresenterTest extends \PHPUnit\Framework\TestCase
-{
-    // Whole functionality is available via traits
-    use \Cds\NettePresenterTests\Traits\Presenter;
+The easiest way to use the library is to extend `Cds\NettePresenterTests\PresenterTestCase`
+which provides all traits and also contains abstract method `configureContainer` that must be implemented to provide DI container for presenter creation.
 
+Example of test class that extends `PresenterTestCase`:
+
+```php
+final class PresenterTest extends Cds\NettePresenterTests\PresenterTestCase
+{
     protected function setUp() : void
     {
         parent::setUp();
@@ -58,6 +60,54 @@ final class PresenterTest extends \PHPUnit\Framework\TestCase
         // Check the presenter response is RedirectResponse with given target
         self::assertRedirectResponseTo('MyPresenter:default', $response);
     }
+
+    // Presenter instance is created from the Nette DI container.
+    // In this function you can configure the container as needed for your tests.
+    // This is the simplest example how to create the container.
+    protected function configureContainer(): Container
+    {
+        $tempDirectory = __DIR__ . '/temp';
+
+        $configurator = new Configurator();
+        $configurator->setDebugMode(true);
+        $configurator->setTempDirectory($tempDirectory);
+
+        return $configurator->createContainer();
+    }
+}
+```
+
+If you don't want to extend `Cds\NettePresenterTests\PresenterTestCase`, you can use the traits directly.
+When using traits only you must create the DI container yourself and expose it as a protected
+`Container $container` property because `PresenterCreate` uses `$this->container` to instantiate presenters.
+
+```php
+final class PresenterTest extends \PHPUnit\Framework\TestCase
+{
+    // Whole functionality is available via traits
+    use \Cds\NettePresenterTests\Traits\Presenter;
+
+    // Provide container for the traits
+    protected Container $container;
+
+    protected function setUp() : void
+    {
+        parent::setUp();
+
+        $tempDirectory = __DIR__ . '/temp';
+
+        $configurator = new Configurator();
+        $configurator->setDebugMode(true);
+        $configurator->setTempDirectory($tempDirectory);
+
+        // Create and store the container so traits can use it
+        $this->container = $configurator->createContainer();
+
+        // Initialize presenter for all following tests
+        $this->presenter = $this->createPresenter(MyPresenter::class);
+    }
+
+    // Tests ...
 }
 ```
 
@@ -135,7 +185,7 @@ final class PresenterTest extends \PHPUnit\Framework\TestCase
 ### Testing without presenter property
 
 It's possible test multiple different presenters without `presenter` property. Testing is done by
-`PresenterRequest` trait that allow to pass any presenter as argument.
+`PresenterRequest` trait and its function `runPresenter` that allow to pass any presenter as argument.
 
 
 ```php
@@ -149,7 +199,7 @@ final class PresenterTest extends \PHPUnit\Framework\TestCase
         $presenter = $this->createPresenter(MyPresenter::class);
 
         // Invoke MyPresenter:default action with parameters
-        $response = $this->requestPresenter($presenter, 'default', [
+        $response = $this->runPresenter($presenter, 'default', [
             'param1' => 'value1',
         ]);
 

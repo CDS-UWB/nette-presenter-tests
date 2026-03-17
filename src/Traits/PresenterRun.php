@@ -14,7 +14,6 @@ use Nette\Application\UI\Presenter as NettePresenter;
 use Nette\Forms\Form;
 use Nette\Http\FileUpload;
 use Nette\Http\Helpers;
-use Nette\Utils\FileSystem;
 use PHPUnit\Framework\AssertionFailedError;
 
 /**
@@ -29,7 +28,7 @@ trait PresenterRun
      */
     protected function runPresenter(NettePresenter $presenter, array $args = []): Response
     {
-        $name = Utils::buildNameFromPresenter($presenter::class);
+        $name = $this->buildNameFromPresenter($presenter::class);
 
         // NOTE: the method is intentionally NULL. In case of GET or HEAD there is check for URL match
         //  and presenter redirects to canonical address.
@@ -55,7 +54,7 @@ trait PresenterRun
             $_COOKIE[Helpers::StrictCookieName] = '1';
         }
 
-        $name = Utils::buildNameFromPresenter($presenter::class);
+        $name = $this->buildNameFromPresenter($presenter::class);
 
         $params = $args;
         $files = [];
@@ -152,30 +151,6 @@ trait PresenterRun
     }
 
     /**
-     * Creates an object for uploading a file via form.
-     *
-     * @param non-empty-string $name
-     * @param int              $error error when uploading file
-     */
-    protected function uploadFile(string $name, string $content, int $error = UPLOAD_ERR_OK): FileUpload
-    {
-        if ($error === UPLOAD_ERR_OK) {
-            $tempFilePath = tempnam(sys_get_temp_dir(), 'TEST');
-            FileSystem::write($tempFilePath, $content);
-            register_shutdown_function(static fn () => FileSystem::delete($tempFilePath));
-        } else {
-            $tempFilePath = null;
-        }
-
-        return new FileUpload([
-            'name' => $name,
-            'size' => strlen($content),
-            'tmp_name' => $tempFilePath,
-            'error' => $error,
-        ]);
-    }
-
-    /**
      * Create presenter request from parameters.
      *
      * @param string               $name   presenter name
@@ -215,5 +190,26 @@ trait PresenterRun
     protected function addSubmitSignal(array $data, string $formName): array
     {
         return array_merge(['_do' => "{$formName}-submit"], $data);
+    }
+
+    /**
+     * Creates an object for uploading a file via form.
+     *
+     * @param non-empty-string $name
+     * @param int              $error error when uploading file
+     */
+    protected function uploadFile(string $name, string $content, int $error = UPLOAD_ERR_OK): FileUpload
+    {
+        return FormUtils::buildUploadFile($name, $content, $error);
+    }
+
+    /**
+     * Build presenter name from presenter class.
+     *
+     * @param class-string $presenterClass
+     */
+    protected function buildNameFromPresenter(string $presenterClass): string
+    {
+        return Utils::buildNameFromPresenter($presenterClass);
     }
 }
