@@ -9,6 +9,9 @@ use Nette\Application\UI\Presenter as NettePresenter;
 use Nette\DI\Container;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class PresenterTestCase extends PHPUnitTestCase
 {
     use Presenter;
