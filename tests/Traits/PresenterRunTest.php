@@ -16,7 +16,6 @@ use Nette\InvalidArgumentException;
 use Nette\Utils\DateTime;
 use Nette\Utils\Html;
 use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -515,11 +514,15 @@ final class PresenterRunTest extends TestCase
      * Tests handling of a ForwardResponse that targets a different presenter.
      */
     #[Test]
-    #[AllowMockObjectsWithoutExpectations]
     public function testRunForwardResponseDifferentPresenter(): void
     {
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage("Unable to run request for presenter 'OtherPresenter' on presenter '{$this->presenter->getName()}'");
+
+        $this->presenter
+            ->expects($this->never())
+            ->method('run')
+        ;
 
         $fwdResponse = new ForwardResponse(new Request(
             'OtherPresenter',
@@ -575,11 +578,15 @@ final class PresenterRunTest extends TestCase
      * Tests normalization of post data - unsupported type.
      */
     #[Test]
-    #[AllowMockObjectsWithoutExpectations]
     public function testNormalizePostDataUnsupported(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Value of 'value' cannot be converted to string (type: object)");
+
+        $this->presenter
+            ->expects($this->never())
+            ->method('run')
+        ;
 
         $this->normForm->addText('value');
 

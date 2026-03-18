@@ -20,7 +20,7 @@ final class PresenterRunBuildNameFromPresenterTest extends TestCase
 {
     use PresenterRun;
 
-    private const string CustomName = 'CustomPresenterName';
+    private const CustomName = 'CustomPresenterName';
 
     protected Presenter&MockObject $presenter;
 
